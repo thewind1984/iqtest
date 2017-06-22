@@ -1,3 +1,3 @@
 
-	<p>{$comment.text|nl2br}</p>
+	<p>{$comment.text|nl2br|escape:'html'}</p>
 	

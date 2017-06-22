@@ -6,8 +6,8 @@
 	{else}
 		<div class="header">
 			<div class="user">
-				<b>{$comment.user.name}</b>
-				<a href="mailto:{$comment.user.email}">{$comment.user.email}</a>
+				<b>{$comment.user.name|escape:'html'}</b>
+				<a href="mailto:{$comment.user.email|escape:'html'}">{$comment.user.email|escape:'html'}</a>
 			</div>
 			<div class="date">
 				{$comment.date}
