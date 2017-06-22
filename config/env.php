@@ -1,6 +1,6 @@
 <?php
 
-	return array(
+	return [
 		// output template section
 		'tpl_cache_dir' => 'cache/tpl',		// must be writeable
 		'tpl_driver' => 'Smarty',
@@ -19,6 +19,6 @@
 		// extra environment data
 		'debug' => false,
 		'static_version' => '1.02',
-	);
+	];
 
 ?>

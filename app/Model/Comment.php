@@ -34,11 +34,13 @@
 			$this->prepareData();
 			
 			if (!$this->text) {
-				return static::setError('пустой текст');
+				static::setError('пустой текст');
+				return false;
 			}
 			
 			if (!$this->user_id) {
-				return static::setError('неверный пользователь');
+				static::setError('неверный пользователь');
+				return false;
 			}
 			
 			list ($level, $right_key) = $this->parent_id
@@ -163,7 +165,8 @@
 			$text = trim($text);
 			
 			if (!$text) {
-				return static::setError('пустой текст');
+				static::setError('пустой текст');
+				return false;
 			}
 			
 			$st = $conn->prepare("UPDATE `" . static::db_table . "` SET `text` = ? WHERE `id` = ?");

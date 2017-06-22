@@ -1,5 +1,8 @@
 <?php	namespace Controller\Ajax;
 
+	use \Helper\Filter;
+	use \Helper\Tree;
+
 	class Comment extends \Controller\Ajax {
 		
 		private $comment;
@@ -9,23 +12,9 @@
 		 * Sub-tree
 		 */
 		public function index(){
-			$parent_id = intval(\Helper\Filter::get('parent_id', 'GET', 0));
+			$parent_id = intval(Filter::get('parent_id', 'GET', 0));
 			
-			// get all sub-comments for parent
-			$tree = \Model\Comment::getTree($parent_id);
-			
-			// get user information for comments
-			$user_ids = array_map(function($v){ return $v['user_id']; }, $tree);
-			$user_ids = array_unique($user_ids);
-			$users = \Model\User::getById($user_ids);
-			
-			// combine users and comments
-			// prepare any comments from tree for deletion (if user has cookie and can remove comment)
-			$tree = array_map(function($v) use ($users){
-				$v['user'] = $users[$v['user_id']];
-				$v['editable'] = !empty($_COOKIE['user_comment']) && $_COOKIE['user_comment'] == $v['user']['secret_key'];
-				return $v;
-			}, $tree);
+			$tree = Tree::build($parent_id);
 			
 			return $this->render(1, 'ok', [
 				'parent_id' => $parent_id,

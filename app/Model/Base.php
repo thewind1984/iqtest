@@ -12,7 +12,6 @@
 		
 		protected static function setError($error){
 			static::$error = $error;
-			return false;
 		}
 		
 		/**

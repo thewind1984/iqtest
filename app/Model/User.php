@@ -1,5 +1,7 @@
 <?php	namespace Model;
 
+	use \Helper\Utils;
+
 	class User extends Base {
 		
 		const db_table = 'user';
@@ -11,14 +13,16 @@
 		 */
 		public static function add($user_name, $user_email){
 			if (!trim($user_name)) {
-				return static::setError('Неверное имя');
+				static::setError('Неверное имя');
+				return false;
 			}
 			
 			if (!trim($user_email) || !filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-				return static::setError('Неверный email');
+				static::setError('Неверный email');
+				return false;
 			}
 			
-			$conn = \Model\Db::getInstance();
+			$conn = Db::getInstance();
 			
 			$user_id = null;
 			$user_name = trim($user_name);
@@ -28,7 +32,7 @@
 			
 			if ($user_id === false) {
 			
-				$secret_key = \Helper\Utils::shortCode();
+				$secret_key = Utils::shortCode();
 				
 				$st = $conn->prepare("INSERT IGNORE INTO `" . static::db_table . "` (`id`,`name`,`email`,`secret_key`) VALUES (:id, :name, :email, :secret)");
 				$st->bindParam(':id', $user_id);
@@ -38,7 +42,8 @@
 				$st->execute();
 				
 				if (($error = $st->errorCode()) != '00000') {
-					return static::setError($st->errorInfo());
+					static::setError($st->errorInfo());
+					return false;
 				}
 				
 				$user_id = $conn->lastInsertId();

@@ -1,5 +1,8 @@
 <?php	namespace View;
 
+	use \Helper\Config;
+	use \Helper\Exception;
+
 	/**
 	 * pattern: Singleton
 	 */
@@ -16,7 +19,7 @@
 		 * Creates instance of template driver
 		 */
 		private function __construct(){
-			$config = \Helper\Config::get('env');
+			$config = Config::get('env');
 			
 			$class = '\\View\\' . $config['tpl_driver'];
 			$this->tpl = new $class();
@@ -52,7 +55,7 @@
 				$this->tpl->assign($k, $v);
 			
 			if (!$this->tpl->templateExists($tpl))
-				throw new \Helper\Exception('Template not found (' . $tpl . ')');
+				throw new Exception('Template not found (' . $tpl . ')');
 			
 			if ($covers && !empty($this->header_file))
 				$this->tpl->display($this->header_file);
@@ -75,7 +78,7 @@
 				$this->tpl->assign($k, $v);
 			
 			if (substr($tpl, 0, 7) != 'string:' && !$this->tpl->templateExists($tpl))
-				throw new \Helper\Exception('Template not found (' . $tpl . ')');
+				throw new Exception('Template not found (' . $tpl . ')');
 			
 			return $this->tpl->fetch($tpl);
 		}

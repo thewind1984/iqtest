@@ -1,12 +1,14 @@
 <?php	namespace Model;
 
+	use \Helper\Config;
+
 	class Db extends Base {
 		
 		protected static $instance;
 		private $connection;
 		
 		private function __construct(){
-			$data = \Helper\Config::get('env', 'db');
+			$data = Config::get('env', 'db');
 			$this->connection = new \PDO('mysql:host=' . $data['host'] . ';port=' . $data['port'] . ';dbname=' . $data['db'] . ';charset=utf8', $data['user'], $data['password']);
 		}
 		

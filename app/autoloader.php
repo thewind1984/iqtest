@@ -8,6 +8,7 @@
 			$class_file = strtolower($class) . '.php';
 		else {
 			$class_file = APP_DIR . '/' . str_replace('\\', '/', $class) . '.php';
+			//echo $class_file . '<br>';
 			
 			if (!file_exists($class_file)) {
 				throw new Exception('Class not found (' . $class . ')');
