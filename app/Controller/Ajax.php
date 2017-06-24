@@ -25,11 +25,11 @@
 		 * Own 'render' method for /ajax/... URLs
 		 * Outputs JSON encoded data
 		 */
-		protected function render($status = static::RESPONSE_STATUS_FAIL, $message = '', $data = []){
+		protected function render($status = self::RESPONSE_STATUS_FAIL, $message = '', $data = []){
 			echo json_encode(array_merge([
 				'status' => $status,
 				'message' => $message,
-			]), $data));
+			], $data));
 		}
 		
 	}

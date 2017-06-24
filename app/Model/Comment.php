@@ -84,9 +84,8 @@
 		 */
 		private static function getDataById($id, $assoc = false){
 			$conn = Db::getInstance();
-			$st = $conn->prepare("SELECT `level`, `right_key`, `left_key` FROM `" . static::db_table . "` WHERE `id`=:id AND `status`=:status");
+			$st = $conn->prepare("SELECT `level`, `right_key`, `left_key` FROM `" . static::db_table . "` WHERE `id`=:id");
 			$st->bindParam(':id', $id, \PDO::PARAM_INT);
-			$st->bindParam(':status', static::STATUS_ACTIVE, \PDO::PARAM_INT);
 			$st->execute();
 			return $st->fetch($assoc ? \PDO::FETCH_ASSOC : \PDO::FETCH_NUM);
 		}
@@ -97,9 +96,10 @@
 		 */
 		public static function getById($id){
 			$conn = Db::getInstance();
+			$status_active = static::STATUS_ACTIVE;
 			$st = $conn->prepare("SELECT p_table.*, (SELECT COUNT(*) FROM `" . static::db_table . "` WHERE `parent_id` = p_table.`id`) as `children` FROM `" . static::db_table . "` p_table WHERE p_table.`id`=:id AND p_table.`status`=:status");
 			$st->bindParam(':id', $id, \PDO::PARAM_INT);
-			$st->bindParam(':status', static::STATUS_ACTIVE, \PDO::PARAM_INT);
+			$st->bindParam(':status', $status_active, \PDO::PARAM_INT);
 			$st->execute();
 			return $st->fetch(\PDO::FETCH_ASSOC);
 		}
@@ -117,7 +117,7 @@
 		/**
 		 * Select full tree of comments
 		 */
-		public static function getTree($parent_id = 0, $max_level = null){
+		public static function getTree($parent_id = self::ROOT_PARENT_ID, $max_level = null){
 			$conn = Db::getInstance();
 			
 			$inputarr = [];

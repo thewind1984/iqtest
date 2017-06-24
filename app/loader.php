@@ -1,7 +1,7 @@
 <?php
 
-	ini_set("display_errors", "off");
-	error_reporting(E_ERROR);
+	ini_set("display_errors", "on");
+	error_reporting(E_ALL);
 
 	require_once APP_DIR . '/autoloader.php';
 	
