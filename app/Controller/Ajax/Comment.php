@@ -2,6 +2,8 @@
 
 	use \Helper\Filter;
 	use \Helper\Tree;
+	use \Model\Comment as MC;
+	use \Model\User;
 
 	class Comment extends \Controller\Ajax {
 		
@@ -31,30 +33,30 @@
 		 */
 		public function add(){
 			
-			$user_name = \Helper\Filter::get('user_name', 'POST', null);
-			$user_email = \Helper\Filter::get('user_email', 'POST', null);
-			$text = \Helper\Filter::get('comment', 'POST', null);
-			$parent_id = intval(\Helper\Filter::get('parent_id', 'POST', 0));
+			$user_name = Filter::get('user_name', 'POST', null);
+			$user_email = Filter::get('user_email', 'POST', null);
+			$text = Filter::get('comment', 'POST', null);
+			$parent_id = intval(Filter::get('parent_id', 'POST', 0));
 			
 			// create user (if exist => return existing id)
 			// using static method
-			$user_id = \Model\User::add($user_name, $user_email);
+			$user_id = User::add($user_name, $user_email);
 			if ($user_id === false)
-				return $this->render(static::RESPONSE_STATUS_FAIL, \Model\User::getError());
+				return $this->render(static::RESPONSE_STATUS_FAIL, User::getError());
 			
 			// adding new comment
 			// using dynamic methods
-			$comment = new \Model\Comment();
+			$comment = new MC();
 			$comment->user_id = $user_id;
 			$comment->text = $text;
 			$comment->parent_id = $parent_id;
 			$comment_id = $comment->save();
 			
 			if ($comment_id === false)
-				return $this->render(static::RESPONSE_STATUS_FAIL, \Model\Comment::getError());
+				return $this->render(static::RESPONSE_STATUS_FAIL, MC::getError());
 			
-			$comment_data = \Model\Comment::getById($comment_id);
-			$comment_data['user'] = \Model\User::getById($comment_data['user_id'], true);
+			$comment_data = MC::getById($comment_id);
+			$comment_data['user'] = User::getById($comment_data['user_id'], true);
 			$comment_data['editable'] = true;
 			
 			return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
@@ -74,13 +76,13 @@
 		 * Delete existing comment
 		 */
 		public function delete(){
-			$comment_id = intval(\Helper\Filter::get('id', 'POST', 0));
+			$comment_id = intval(Filter::get('id', 'POST', 0));
 			
 			$access = $this->checkCommentAccess($comment_id);
 			if ($access !== true)
 				return $access;
 			
-			\Model\Comment::delete($comment_id);
+			MC::delete($comment_id);
 			
 			$this->comment['user'] = $this->user;
 			$this->comment['status'] = 0;
@@ -103,7 +105,7 @@
 			$method = $_SERVER['REQUEST_METHOD'];
 			$method = in_array($method, ['GET', 'POST']) ? $method : 'GET';
 			
-			$comment_id = intval(\Helper\Filter::get('id', $method, 0));
+			$comment_id = intval(Filter::get('id', $method, 0));
 			
 			$access = $this->checkCommentAccess($comment_id);
 			if ($access !== true)
@@ -121,13 +123,13 @@
 				
 			} else {
 				
-				$text = \Helper\Filter::get('comment', 'POST', null);
+				$text = Filter::get('comment', 'POST', null);
 				
-				$result = \Model\Comment::updateText($comment_id, $text);
+				$result = MC::updateText($comment_id, $text);
 				if ($result !== true)
-					return $this->render(static::RESPONSE_STATUS_FAIL, \Model\Comment::getError());
+					return $this->render(static::RESPONSE_STATUS_FAIL, MC::getError());
 				
-				$comment = \Model\Comment::getById($comment_id);
+				$comment = MC::getById($comment_id);
 				
 				return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 					'id' => $comment['id'],
@@ -144,11 +146,11 @@
 		 * @param comment_id int
 		 */
 		private function checkCommentAccess($comment_id) {
-			$this->comment = \Model\Comment::getById($comment_id);
+			$this->comment = MC::getById($comment_id);
 			if (empty($this->comment['id']))
 				return $this->render(static::RESPONSE_STATUS_FAIL, 'Неверные данные');
 			
-			$this->user = \Model\User::getById($this->comment['user_id'], true);
+			$this->user = User::getById($this->comment['user_id'], true);
 			if (empty($_COOKIE['user_comment']) || $_COOKIE['user_comment'] != $this->user['secret_key'])
 				return $this->render(static::RESPONSE_STATUS_FAIL, 'Чужой комментарий');
 			
