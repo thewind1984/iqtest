@@ -5,7 +5,11 @@
 		private $user_id;
 		private $text;
 		private $parent_id;
-		const db_table = 'comment';
+		const	db_table = 'comment',
+				STATUS_ACTIVE = 1,
+				STATUS_DELETED = 0,
+				ROOT_PARENT_ID = 0,
+				MAX_SINGLE_LEVEL = 1;
 		
 		/**
 		 * Magic set inner attribute
@@ -80,8 +84,9 @@
 		 */
 		private static function getDataById($id, $assoc = false){
 			$conn = Db::getInstance();
-			$st = $conn->prepare("SELECT `level`, `right_key`, `left_key` FROM `" . static::db_table . "` WHERE `id`=:id");
+			$st = $conn->prepare("SELECT `level`, `right_key`, `left_key` FROM `" . static::db_table . "` WHERE `id`=:id AND `status`=:status");
 			$st->bindParam(':id', $id, \PDO::PARAM_INT);
+			$st->bindParam(':status', static::STATUS_ACTIVE, \PDO::PARAM_INT);
 			$st->execute();
 			return $st->fetch($assoc ? \PDO::FETCH_ASSOC : \PDO::FETCH_NUM);
 		}
@@ -92,8 +97,9 @@
 		 */
 		public static function getById($id){
 			$conn = Db::getInstance();
-			$st = $conn->prepare("SELECT p_table.*, (SELECT COUNT(*) FROM `" . static::db_table . "` WHERE `parent_id` = p_table.`id`) as `children` FROM `" . static::db_table . "` p_table WHERE p_table.`id`=:id");
+			$st = $conn->prepare("SELECT p_table.*, (SELECT COUNT(*) FROM `" . static::db_table . "` WHERE `parent_id` = p_table.`id`) as `children` FROM `" . static::db_table . "` p_table WHERE p_table.`id`=:id AND p_table.`status`=:status");
 			$st->bindParam(':id', $id, \PDO::PARAM_INT);
+			$st->bindParam(':status', static::STATUS_ACTIVE, \PDO::PARAM_INT);
 			$st->execute();
 			return $st->fetch(\PDO::FETCH_ASSOC);
 		}

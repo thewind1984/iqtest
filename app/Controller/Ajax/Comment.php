@@ -16,7 +16,7 @@
 			
 			$tree = Tree::build($parent_id);
 			
-			return $this->render(1, 'ok', [
+			return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 				'parent_id' => $parent_id,
 				'content' => $this->view->fetch([
 					'parent_id' => $parent_id,
@@ -40,7 +40,7 @@
 			// using static method
 			$user_id = \Model\User::add($user_name, $user_email);
 			if ($user_id === false)
-				return $this->render(0, \Model\User::getError());
+				return $this->render(static::RESPONSE_STATUS_FAIL, \Model\User::getError());
 			
 			// adding new comment
 			// using dynamic methods
@@ -51,13 +51,13 @@
 			$comment_id = $comment->save();
 			
 			if ($comment_id === false)
-				return $this->render(0, \Model\Comment::getError());
+				return $this->render(static::RESPONSE_STATUS_FAIL, \Model\Comment::getError());
 			
 			$comment_data = \Model\Comment::getById($comment_id);
 			$comment_data['user'] = \Model\User::getById($comment_data['user_id'], true);
 			$comment_data['editable'] = true;
 			
-			return $this->render(1, 'ok', [
+			return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 				'parent_id' => $parent_id,
 				'comment_id' => $comment_id,
 				'comment_item' => $this->view->fetch(
@@ -85,7 +85,7 @@
 			$this->comment['user'] = $this->user;
 			$this->comment['status'] = 0;
 			
-			return $this->render(1, 'ok', [
+			return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 				'id' => $this->comment['id'],
 				'content' => $this->view->fetch([
 					'comment' => $this->comment,
@@ -111,7 +111,7 @@
 			
 			if ($method == 'GET') {
 				
-				return $this->render(1, 'ok', [
+				return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 					'id' => $this->comment['id'],
 					'content' => $this->view->fetch([
 						'comment' => $this->comment,
@@ -125,11 +125,11 @@
 				
 				$result = \Model\Comment::updateText($comment_id, $text);
 				if ($result !== true)
-					return $this->render(0, \Model\Comment::getError());
+					return $this->render(static::RESPONSE_STATUS_FAIL, \Model\Comment::getError());
 				
 				$comment = \Model\Comment::getById($comment_id);
 				
-				return $this->render(1, 'ok', [
+				return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok', [
 					'id' => $comment['id'],
 					'content' => $this->view->fetch([
 						'comment' => $comment,
@@ -146,11 +146,11 @@
 		private function checkCommentAccess($comment_id) {
 			$this->comment = \Model\Comment::getById($comment_id);
 			if (empty($this->comment['id']))
-				return $this->render(0, 'Неверные данные');
+				return $this->render(static::RESPONSE_STATUS_FAIL, 'Неверные данные');
 			
 			$this->user = \Model\User::getById($this->comment['user_id'], true);
 			if (empty($_COOKIE['user_comment']) || $_COOKIE['user_comment'] != $this->user['secret_key'])
-				return $this->render(0, 'Чужой комментарий');
+				return $this->render(static::RESPONSE_STATUS_FAIL, 'Чужой комментарий');
 			
 			return true;
 		}

@@ -12,7 +12,7 @@
 			$st = $conn->prepare("TRUNCATE TABLE `user`");
 			$st->execute();
 			
-			return $this->render(1, 'ok');
+			return $this->render(static::RESPONSE_STATUS_SUCCESS, 'ok');
 			
 		}
 		
